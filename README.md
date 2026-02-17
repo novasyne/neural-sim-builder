@@ -1,4 +1,4 @@
-# Neural Simulator Builder 🧠
+# Neural Simulator Builder
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
@@ -6,20 +6,19 @@
 
 **A Claude Code skill for building biologically-plausible spiking neural network simulators in Python.**
 
-Build neural simulators with progressive complexity—from basic action potentials to metabolically-aware, self-rewiring cortical networks. Perfect for students, researchers, and anyone curious about how brains compute.
+Build neural simulators with progressive complexity, from basic action potentials to metabolically-aware, self-rewiring cortical networks. Perfect for students, researchers, and anyone curious about how brains compute.
 
-## ✨ Features
+## Features
 
-- 🎓 **Progressive Learning**: 4 levels from basic to advanced
-- 🧬 **Biologically Accurate**: Based on experimental neuroscience
-- 🚀 **Ready to Run**: Complete, working code in seconds
-- 📊 **Rich Visualization**: Spike rasters, voltage traces, learning curves
-- 🔬 **Research-Grade**: Suitable for publications
-- 🎨 **Highly Customizable**: Easy to extend and modify
+- **Progressive Learning**: 4 levels from basic to advanced
+- **Biologically Accurate**: Based on experimental neuroscience
+- **Ready to Run**: Complete, working code in seconds
+- **Rich Visualization**: Spike rasters, voltage traces, learning curves
+- **Highly Customizable**: Easy to extend and modify
 
-## 🎯 What Can You Build?
+## What Can You Build?
 
-### Level 1: Basic Neural Circuit ⚡
+### Level 1: Basic Neural Circuit
 ```python
 # Hodgkin-Huxley neurons with realistic ion channels
 network = NeuralNetwork(n_neurons=10)
@@ -27,14 +26,14 @@ network.run()
 # → See action potentials in real-time!
 ```
 
-### Level 2: Learning Networks 🧠
+### Level 2: Learning Networks
 ```python
 # Networks that learn patterns via STDP
 network.train_on_patterns(['A', 'B', 'C'], epochs=10)
 # → Watch synaptic weights evolve!
 ```
 
-### Level 3: Bioenergetic Networks 🔋
+### Level 3: Bioenergetic Networks
 ```python
 # Metabolism-coupled neural simulation
 network.set_glucose(2.5)  # Low glucose
@@ -42,7 +41,7 @@ network.train()
 # → See how energy affects learning!
 ```
 
-### Level 4: Structural Networks 🏗️
+### Level 4: Structural Networks
 ```python
 # Self-organizing cortical architecture
 network = LayeredNetwork(layers=3, synaptogenesis=True)
@@ -50,7 +49,7 @@ network.train()
 # → Network physically rewires itself!
 ```
 
-## 📦 Installation
+## Installation
 
 ### As a Claude Code Skill
 
@@ -84,7 +83,7 @@ pip install numpy matplotlib
 python templates/level1_basic.py
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Using the Claude Skill
 
@@ -128,7 +127,7 @@ network.run(external_input_neurons=[0, 1, 2])
 plot_results(network)
 ```
 
-## 📚 Examples
+## Examples
 
 ### Example 1: Understanding Action Potentials
 
@@ -292,7 +291,7 @@ network.plot_layer_activity()
 - Layer-specific activity patterns emerge
 - Self-organized connectivity structure
 
-## 🎓 Learning Path
+## Learning Path
 
 ### For Students
 1. Start with **Level 1** to understand neural signaling
@@ -312,7 +311,7 @@ network.plot_layer_activity()
 3. Use **Level 3** for neuroenergetics seminars
 4. Use **Level 4** for advanced computational neuroscience
 
-## 🔧 Customization
+## Customization
 
 ### Changing Parameters
 
@@ -359,7 +358,7 @@ def create_ring_network(n_neurons):
     return network
 ```
 
-## 📊 Performance Optimization
+## Performance Optimization
 
 ### NumPy Vectorization
 ```python
@@ -388,43 +387,28 @@ voltages = jnp.array(voltages)
 synaptic_currents = jnp.dot(weights, voltages)
 ```
 
-## 🧪 Testing
-
-Run the test suite:
-
-```bash
-pytest tests/
-```
-
-Tests cover:
-- ✅ Neuron dynamics (spike generation, voltage traces)
-- ✅ Synaptic transmission (delays, weight updates)
-- ✅ STDP learning (LTP/LTD windows)
-- ✅ Metabolic coupling (ATP production/consumption)
-- ✅ Network connectivity (topology, layer structure)
-
-## 📖 Documentation
+## Documentation
 
 - **[upgrade_guide.md](docs/upgrade_guide.md)** - How to progress through levels
 
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! Areas of interest:
 
-- 🧠 New neuron models (leaky integrate-and-fire, adaptive exponential, etc.)
-- 🔗 Additional plasticity rules (homeostatic, metaplasticity)
-- 📊 Advanced visualizations (3D network graphs, animations)
-- ⚡ Performance optimizations
-- 📚 Tutorial notebooks
-- 🧪 Additional examples
+- New neuron models (leaky integrate-and-fire, adaptive exponential, etc.)
+- Additional plasticity rules (homeostatic, metaplasticity)
+- Advanced visualizations (3D network graphs, animations)
+- Performance optimizations
+- Tutorial notebooks
+- Additional examples
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Based on research by:
 - Hodgkin & Huxley (1952) - Action potential dynamics
@@ -437,13 +421,13 @@ Inspired by:
 - **NEST** - Large-scale neural simulation
 - **NEURON** - Compartmental modeling
 
-## 📞 Support
+## Support
 
-- 🐛 **Bug reports**: [GitHub Issues](https://github.com/novasyne/neural-sim-builder/issues)
-- 💡 **Feature requests**: [GitHub Discussions](https://github.com/novasyne/neural-sim-builder/discussions)
-- 📧 **Email**: admin@novasyne.com
+- **Bug reports**: [GitHub Issues](https://github.com/novasyne/neural-sim-builder/issues)
+- **Feature requests**: [GitHub Discussions](https://github.com/novasyne/neural-sim-builder/discussions)
+- **Email**: admin@novasyne.com
 
-## 🌟 Citation
+## Citation
 
 If you use this in your research, please cite:
 
@@ -456,6 +440,5 @@ If you use this in your research, please cite:
 }
 ```
 
-**Built with ❤️ for computational neuroscience**
 
 [⭐ Star this repo](https://github.com/novasyne/neural-sim-builder) | [🐛 Report Bug](https://github.com/novasyne/neural-sim-builder/issues) | [💡 Request Feature](https://github.com/novasyne/neural-sim-builder/discussions)
