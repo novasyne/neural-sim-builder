@@ -4,7 +4,7 @@ Visualization functions for each network complexity level.
 Each function produces a multi-panel figure appropriate for its level:
   - plot_basic_results: Spike raster + voltage traces (Level 1)
   - plot_plasticity_results: Weight evolution + distribution + raster + overlap (Level 2)
-  - plot_metabolic_results: Weight evolution + ATP + distribution + raster (Level 3)
+  - plot_metabolic_results: Weight + ATP + AGC gain + raster (Level 3)
   - plot_structural_results: Weight + synapse count + raster by layer + layer stats (Level 4)
 """
 
@@ -21,7 +21,6 @@ def plot_basic_results(network, save_path: str = 'basic_results.png'):
     """Visualise a basic network: spike raster and voltage traces."""
     fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 
-    # Spike raster
     ax = axes[0]
     if network.spike_history:
         times, neuron_ids = zip(*network.spike_history)
@@ -32,7 +31,6 @@ def plot_basic_results(network, save_path: str = 'basic_results.png'):
     ax.set_ylim(-0.5, network.params.n_neurons - 0.5)
     ax.grid(True, alpha=0.3)
 
-    # Voltage traces
     ax = axes[1]
     if network.voltage_history:
         times, voltages = zip(*network.voltage_history)
@@ -62,7 +60,6 @@ def plot_plasticity_results(network, patterns: Dict[str, np.ndarray],
     """Visualise a plastic network: weight evolution, distribution, raster, overlap."""
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
-    # Weight evolution
     ax = axes[0, 0]
     ax.plot(network.weight_snapshots, 'b-o', linewidth=2, markersize=4)
     ax.set_xlabel('Epoch')
@@ -73,7 +70,6 @@ def plot_plasticity_results(network, patterns: Dict[str, np.ndarray],
     ax.legend()
     ax.grid(True, alpha=0.3)
 
-    # Weight distribution
     ax = axes[0, 1]
     exc_weights = [syn.weight for sl in network.synapses.values()
                    for syn in sl if not syn.params.is_inhibitory]
@@ -83,7 +79,6 @@ def plot_plasticity_results(network, patterns: Dict[str, np.ndarray],
     ax.set_title('Final Excitatory Weight Distribution')
     ax.grid(True, alpha=0.3)
 
-    # Spike raster (last epoch)
     ax = axes[1, 0]
     if network.spike_history:
         spikes_per_epoch = len(network.spike_history) // max(network.params.training_epochs, 1)
@@ -98,7 +93,6 @@ def plot_plasticity_results(network, patterns: Dict[str, np.ndarray],
     ax.set_title('Spike Raster (Last Epoch)')
     ax.grid(True, alpha=0.3)
 
-    # Pattern overlap
     ax = axes[1, 1]
     pattern_names = list(patterns.keys())
     n_pat = len(pattern_names)
@@ -129,10 +123,9 @@ def plot_plasticity_results(network, patterns: Dict[str, np.ndarray],
 
 def plot_metabolic_results(network, patterns: Dict[str, np.ndarray],
                            save_path: str = 'metabolic_results.png'):
-    """Visualise a metabolic network: weight evolution, ATP, distribution, raster."""
+    """Visualise a metabolic network: weight evolution, ATP, AGC gain, raster."""
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
-    # Weight evolution
     ax = axes[0, 0]
     ax.plot(network.weight_snapshots, 'b-o', linewidth=2, markersize=4)
     ax.set_xlabel('Epoch')
@@ -143,25 +136,33 @@ def plot_metabolic_results(network, patterns: Dict[str, np.ndarray],
     ax.legend()
     ax.grid(True, alpha=0.3)
 
-    # ATP levels
     ax = axes[0, 1]
     ax.plot(network.atp_snapshots, 'g-s', linewidth=2, markersize=4)
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Mean ATP (mM)')
     ax.set_title('ATP Levels Over Training')
+    ax.axhline(y=3.0, color='gray', linestyle=':', alpha=0.5, label='Baseline (3 mM)')
+    ax.legend()
     ax.grid(True, alpha=0.3)
 
-    # Weight distribution
     ax = axes[1, 0]
-    exc_weights = [syn.weight for sl in network.synapses.values()
-                   for syn in sl if not syn.params.is_inhibitory]
-    ax.hist(exc_weights, bins=30, color='steelblue', edgecolor='white', alpha=0.8)
-    ax.set_xlabel('Synaptic Weight')
-    ax.set_ylabel('Count')
-    ax.set_title('Final Excitatory Weight Distribution')
+    if hasattr(network, 'gain_history') and network.gain_history:
+        ax.plot(network.gain_history, 'purple', linewidth=1, alpha=0.8)
+        ax.set_xlabel('AGC Update Step')
+        ax.set_ylabel('Gain')
+        ax.set_title('AGC Gain Over Time')
+        ax.axhline(y=network.agc_params.initial_gain, color='r', linestyle='--',
+                    alpha=0.5, label='Initial gain')
+        ax.legend()
+    else:
+        exc_weights = [syn.weight for sl in network.synapses.values()
+                       for syn in sl if not syn.params.is_inhibitory]
+        ax.hist(exc_weights, bins=30, color='steelblue', edgecolor='white', alpha=0.8)
+        ax.set_xlabel('Synaptic Weight')
+        ax.set_ylabel('Count')
+        ax.set_title('Final Excitatory Weight Distribution')
     ax.grid(True, alpha=0.3)
 
-    # Spike raster (last epoch)
     ax = axes[1, 1]
     if network.spike_history:
         spikes_per_epoch = len(network.spike_history) // max(network.params.training_epochs, 1)
@@ -190,7 +191,6 @@ def plot_structural_results(network, save_path: str = 'structural_results.png'):
     """Visualise a layered network: weight, synapse count, raster by layer, layer stats."""
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
-    # Weight evolution
     ax = axes[0, 0]
     ax.plot(network.weight_snapshots, 'b-o', linewidth=2, markersize=4)
     ax.set_xlabel('Epoch')
@@ -201,7 +201,6 @@ def plot_structural_results(network, save_path: str = 'structural_results.png'):
     ax.legend()
     ax.grid(True, alpha=0.3)
 
-    # Synapse count
     ax = axes[0, 1]
     ax.plot(network.synapse_count_snapshots, 'm-s', linewidth=2, markersize=4)
     ax.set_xlabel('Epoch')
@@ -212,7 +211,6 @@ def plot_structural_results(network, save_path: str = 'structural_results.png'):
     ax.legend()
     ax.grid(True, alpha=0.3)
 
-    # Spike raster by layer
     ax = axes[1, 0]
     if network.spike_history:
         spikes_per_epoch = len(network.spike_history) // max(network.params.training_epochs, 1)
@@ -228,7 +226,6 @@ def plot_structural_results(network, save_path: str = 'structural_results.png'):
     ax.set_title('Spike Raster (Last Epoch, by Layer)')
     ax.grid(True, alpha=0.3)
 
-    # Layer statistics
     ax = axes[1, 1]
     layer_ids = sorted(set(n.layer for n in network.neurons))
     layer_names = [f'Layer {l}' for l in layer_ids]

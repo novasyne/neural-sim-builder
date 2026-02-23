@@ -2,6 +2,16 @@
 Shared data structures, parameters, and utility functions.
 
 All parameter dataclasses and constants used across the component library.
+
+Parameter values are sourced from established neuroscience literature:
+  - Hodgkin & Huxley (1952): Ion channel dynamics (squid giant axon)
+  - Bi & Poo (1998): STDP time windows
+  - Song et al. (2000), Kempter et al. (1999): STDP learning rates
+  - Attwell & Laughlin (2001), Howarth et al. (2012): Brain energy budget
+  - Zhu et al. (2012): Brain ATP concentration (~3 mM via 31P MRS)
+  - Rae et al. (2024): Brain energy constraints and allostatic load
+  - Markram et al. (2015): Cortical microcircuit connectivity
+  - Turrigiano & Nelson (2004): Homeostatic plasticity / AGC
 """
 
 import math
@@ -14,7 +24,7 @@ from typing import List
 # CONSTANTS
 # ============================================================================
 
-STDP_WINDOW = 20.0  # Time window for STDP (ms)
+STDP_WINDOW = 20.0  # Time window for STDP (ms) — Bi & Poo 1998
 
 
 # ============================================================================
@@ -41,7 +51,11 @@ class Vector3:
 
 @dataclass
 class NeuronParams:
-    """Hodgkin-Huxley neuron parameters with biological units."""
+    """
+    Hodgkin-Huxley neuron parameters with biological units.
+
+    Values from Hodgkin & Huxley (1952), standard for computational models.
+    """
     C_m: float = 1.0          # Membrane capacitance (uF/cm^2)
     V_rest: float = -65.0     # Resting potential (mV)
     g_Na: float = 120.0       # Sodium max conductance (mS/cm^2)
@@ -51,36 +65,101 @@ class NeuronParams:
     E_K: float = -77.0        # Potassium reversal (mV)
     E_L: float = -54.387      # Leak reversal (mV)
 
+    # Absolute refractory period: ~1-2 ms in CNS neurons
+    # (Gerstner et al., Neuronal Dynamics; PhysiologyWeb).
+    # The HH gating variables produce intrinsic relative refractoriness.
+    refractory_period: float = 2.0  # ms
+
+    # Input current safety clamp to prevent numerical instability
+    max_input_current: float = 100.0  # pA
+
 
 @dataclass
 class MetabolicParams:
-    """Parameters for neuronal energy metabolism."""
-    blood_glucose: float = 5.0          # Systemic glucose level (mM)
-    blood_ketones: float = 0.1          # Systemic ketone level (mM)
-    complex_i_efficiency: float = 1.0   # Mitochondrial electron transport efficiency (0-1)
-    atp_consumption_rate: float = 1e-5  # Rate constant for ATP usage by ion pumps
-    initial_atp: float = 5.0            # Starting ATP concentration (mM)
+    """
+    Parameters for neuronal energy metabolism.
+
+    ATP concentration: ~3 mM (31P MRS; Zhu et al. 2012; Du et al. 2008).
+    Glucose transport: Michaelis-Menten via GLUT1, Km ≈ 7 mM (Rae et al. 2024).
+    Glycogen shunt: astrocytic buffer for burst activity (Dienel & Rothman 2019).
+    """
+    blood_glucose: float = 5.0          # Systemic glucose (mM, euglycemia)
+    blood_ketones: float = 0.1          # Systemic ketones (mM, fed state)
+    complex_i_efficiency: float = 1.0   # Mitochondrial Complex I efficiency (0-1)
+    atp_consumption_rate: float = 1e-4  # Rate constant for ATP usage by ion pumps
+    initial_atp: float = 3.0            # Starting ATP (mM) — 31P MRS measured
+
+    # Michaelis-Menten glucose transport (BBB GLUT1 kinetics)
+    # Km ≈ 7 mM for GLUT1 (Barros et al. 2005). Vmax calibrated so that
+    # at steady state with typical spiking activity, ATP ≈ 3 mM.
+    # Production must balance ion pump consumption per timestep.
+    glucose_km: float = 7.0             # GLUT1 half-saturation (mM)
+    glucose_vmax: float = 0.12          # Max glucose transport rate
+
+    # Glycogen shunt (astrocytic energy buffer; Rae et al. 2024)
+    glycogen_enabled: bool = True
+    glycogen_initial: float = 5.0       # Initial glycogen (mM glucose equiv.)
+    glycogen_max: float = 5.0           # Max glycogen capacity
+    glycogen_mobilization_rate: float = 0.1   # Breakdown rate under demand
+    glycogen_synthesis_rate: float = 0.02     # Replenishment rate at rest
+    glycogen_atp_yield: float = 3.0           # ATP/glucose from glycogen (vs 2)
+
+    # Ion pump coupling: tanh(ATP / atp_pump_half)
+    # At 3 mM: tanh(2.0) ≈ 0.964 (near-normal pump function)
+    atp_pump_half: float = 1.5          # Pump half-efficiency ATP level
 
 
 @dataclass
 class SynapseParams:
-    """Synapse parameters including plasticity settings."""
-    weight: float = 3.0           # Initial synaptic strength
-    max_weight: float = 7.5       # Upper bound on weight
-    min_weight: float = 0.1       # Lower bound on weight
+    """
+    Synapse parameters including plasticity settings.
+
+    Weight ratio: inhibitory ~4x excitatory (Markram et al. 2015).
+    Max weight = 2.5x initial (bounded plasticity).
+    STDP: ~0.01 LTP, ~0.012 LTD (Song et al. 2000; Kempter et al. 1999).
+    """
+    weight: float = 1.0           # Initial excitatory synaptic strength
+    max_weight: float = 2.5       # Upper bound (2.5x initial)
+    min_weight: float = 0.1       # Lower bound
     delay: float = 1.0            # Propagation delay (ms)
     pulse_duration: float = 2.0   # Postsynaptic current duration (ms)
     is_inhibitory: bool = False
 
-    # STDP parameters
-    stdp_ltp_rate: float = 0.05   # Learning rate for potentiation
-    stdp_ltd_rate: float = 0.06   # Learning rate for depression
+    # STDP parameters — Song et al. 2000; Kempter et al. 1999
+    # LTD slightly > LTP prevents runaway potentiation
+    stdp_ltp_rate: float = 0.01   # LTP learning rate per spike pair
+    stdp_ltd_rate: float = 0.012  # LTD learning rate per spike pair
 
-    # STP parameters
-    tau_facilitation: float = 200.0   # Facilitation recovery time constant (ms)
-    tau_depression: float = 500.0     # Depression recovery time constant (ms)
-    U_facilitation: float = 0.1       # Facilitation increment per spike
-    U_depression: float = 0.2         # Depression decrement per spike
+    # STP parameters — Markram et al. 1998
+    tau_facilitation: float = 200.0   # Facilitation recovery (ms)
+    tau_depression: float = 500.0     # Depression recovery (ms)
+    U_facilitation: float = 0.1       # Facilitation increment
+    U_depression: float = 0.2         # Depression decrement
+
+
+@dataclass
+class AGCParams:
+    """
+    Automatic Gain Control (homeostatic firing-rate regulation).
+
+    Biological basis: Turrigiano & Nelson (2004). In biology operates on
+    hours-days; computational models use faster timescales.
+
+    ATP gating prevents AGC from masking metabolic failure:
+      metabolic_gate(ATP) = 1 / (1 + exp(-(ATP - atp_half) / atp_slope))
+      effective_lambda = lambda_base * metabolic_gate(mean_ATP)
+    """
+    enabled: bool = True
+    target_rate_hz: float = 35.0      # Target firing rate (Hz)
+    lambda_base: float = 0.002        # Base gain adjustment rate
+    interval_ms: float = 100.0        # AGC update interval (ms)
+    gain_min: float = 5.0             # Minimum gain
+    gain_max: float = 100.0           # Maximum gain
+    initial_gain: float = 20.0        # Starting gain
+
+    # ATP gating sigmoid
+    atp_half: float = 1.5             # 50% AGC effectiveness ATP level (mM)
+    atp_slope: float = 0.5            # Sigmoid slope
 
 
 @dataclass
@@ -94,7 +173,7 @@ class SimulationParams:
     input_current: float = 25.0   # External input current
     n_input_neurons: int = 32     # Number of neurons receiving patterns
     training_epochs: int = 10     # Number of training passes
-    synaptogenesis_rate: float = 0.0  # Probability of forming a new synapse (0 = disabled)
+    synaptogenesis_rate: float = 0.0  # Probability of new synapse (0 = disabled)
 
 
 # ============================================================================
@@ -104,16 +183,7 @@ class SimulationParams:
 def create_sparse_pattern(label: str, size: int, n_active: int = 8) -> np.ndarray:
     """
     Create a sparse binary pattern seeded by the label string.
-
     Same label always produces the same pattern for reproducibility.
-
-    Args:
-        label: A string label (e.g. 'A', 'B', 'pattern_1')
-        size: Length of the binary vector
-        n_active: Number of active (1) bits
-
-    Returns:
-        Binary numpy array of shape (size,)
     """
     seed = sum(ord(c) * (i + 1) for i, c in enumerate(label))
     rng = np.random.RandomState(seed)
@@ -127,18 +197,6 @@ def create_temporal_sequence(base_pattern: np.ndarray, n_steps: int = 4,
                              n_flips: int = 4, seed: int = 0) -> List[np.ndarray]:
     """
     Create a temporal sequence by flipping bits in the base pattern.
-
-    Each step in the sequence is a small variation of the base,
-    representing a spatiotemporal input that evolves over time.
-
-    Args:
-        base_pattern: Binary array to create variations from
-        n_steps: Number of temporal steps
-        n_flips: Number of bits to flip per step
-        seed: Random seed for reproducibility
-
-    Returns:
-        List of binary arrays forming a temporal sequence
     """
     rng = np.random.RandomState(seed)
     sequence = []

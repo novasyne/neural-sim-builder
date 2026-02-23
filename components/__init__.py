@@ -12,6 +12,7 @@ from .base import (
     MetabolicParams,
     SynapseParams,
     SimulationParams,
+    AGCParams,
     STDP_WINDOW,
     create_sparse_pattern,
     create_temporal_sequence,
@@ -51,11 +52,11 @@ from .visualization import (
     plot_structural_results,
 )
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 __all__ = [
     # Base
     "Vector3", "NeuronParams", "MetabolicParams", "SynapseParams",
-    "SimulationParams", "STDP_WINDOW",
+    "SimulationParams", "AGCParams", "STDP_WINDOW",
     "create_sparse_pattern", "create_temporal_sequence",
     # Neurons
     "HodgkinHuxleyNeuron", "MetabolicComponent", "MetabolicNeuron",

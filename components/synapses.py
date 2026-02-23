@@ -6,6 +6,16 @@ Classes are ordered by complexity level:
   - PlasticSynapse: STDP + STP plasticity (Level 2)
   - MetabolicPlasticSynapse: ATP-modulated transmission and learning (Level 3)
   - StructuralSynapse: Distance-based delay with full plasticity (Level 4)
+
+STDP parameters from Song et al. (2000) and Kempter et al. (1999):
+  - LTP rate: ~0.01 per spike pair
+  - LTD rate: ~0.012 per spike pair (slightly > LTP for stability)
+  - Time window: 20 ms (Bi & Poo 1998)
+  - LTD > LTP prevents runaway potentiation
+
+ATP modulation (Level 3+):
+  - Synaptic transmission: tanh(pre_ATP / 4.0) — matches C++ simulator
+  - STDP learning: tanh(pre_ATP / 5.0) — presynaptic ATP only
 """
 
 import numpy as np
@@ -62,8 +72,8 @@ class PlasticSynapse:
         - Depression: repeated use temporarily weakens the synapse
 
     Spike-Timing-Dependent Plasticity (STDP):
-        - LTP: pre fires before post -> weight increases
-        - LTD: pre fires after post  -> weight decreases
+        - LTP: pre fires before post → weight increases
+        - LTD: pre fires after post  → weight decreases
     """
 
     def __init__(self, pre_neuron: HodgkinHuxleyNeuron, params: SynapseParams = None):
@@ -111,8 +121,7 @@ class PlasticSynapse:
         """
         Apply STDP learning rule on a postsynaptic spike.
 
-        Adjusts the base weight based on the time difference between
-        pre and post spikes. Only excitatory synapses undergo STDP.
+        Only excitatory synapses undergo STDP.
         """
         if self.params.is_inhibitory or self.last_pre_spike_time < 0:
             return
@@ -149,8 +158,12 @@ class MetabolicPlasticSynapse:
     Synapse with STP, STDP, and energy-dependent modulation.
 
     Extends PlasticSynapse:
-      - Synaptic transmission is scaled by presynaptic ATP
-      - STDP weight updates are scaled by average ATP of pre and post neurons
+      - Synaptic transmission scaled by presynaptic ATP: tanh(ATP / 4.0)
+      - STDP weight updates scaled by presynaptic ATP: tanh(ATP / 5.0)
+
+    Uses presynaptic ATP only (matching C++ reference implementation),
+    as the presynaptic terminal is the site of vesicle release and the
+    primary energy consumer for transmission.
     """
 
     def __init__(self, pre_neuron: MetabolicNeuron, params: SynapseParams = None):
@@ -191,7 +204,7 @@ class MetabolicPlasticSynapse:
         return 0.0
 
     def apply_stdp(self, post_neuron: MetabolicNeuron, post_spike_time: float):
-        """Apply STDP learning rule, modulated by metabolic state."""
+        """Apply STDP learning rule, modulated by presynaptic metabolic state."""
         if self.params.is_inhibitory or self.last_pre_spike_time < 0:
             return
 
@@ -206,10 +219,9 @@ class MetabolicPlasticSynapse:
             delta_w = -p.stdp_ltd_rate * np.exp(delta_t / STDP_WINDOW)
 
         if delta_w != 0.0:
+            # Use presynaptic ATP only (matches C++ reference)
             pre_atp = self.pre_neuron.metabolism.get_atp()
-            post_atp = post_neuron.metabolism.get_atp()
-            avg_atp = (pre_atp + post_atp) / 2.0
-            atp_scaling = np.tanh(avg_atp / 5.0)
+            atp_scaling = np.tanh(pre_atp / 5.0)
             delta_w *= atp_scaling
             self.weight = np.clip(self.weight + delta_w, p.min_weight, p.max_weight)
 
@@ -287,10 +299,9 @@ class StructuralSynapse:
             delta_w = -p.stdp_ltd_rate * np.exp(delta_t / STDP_WINDOW)
 
         if delta_w != 0.0:
+            # Use presynaptic ATP only (matches C++ reference)
             pre_atp = self.pre_neuron.metabolism.get_atp()
-            post_atp = post_neuron.metabolism.get_atp()
-            avg_atp = (pre_atp + post_atp) / 2.0
-            atp_scaling = np.tanh(avg_atp / 5.0)
+            atp_scaling = np.tanh(pre_atp / 5.0)
             delta_w *= atp_scaling
             self.weight = np.clip(self.weight + delta_w, p.min_weight, p.max_weight)
 
