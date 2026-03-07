@@ -24,7 +24,7 @@ def main():
     print("=== Example 05: Ring Network ===\n")
 
     n_neurons = 20
-    dt = 0.01
+    dt = 0.05
     duration = 150.0
     n_steps = int(duration / dt)
 

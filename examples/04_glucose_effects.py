@@ -39,7 +39,7 @@ def main():
     print("=== Example 04: Glucose Effects on Learning ===")
 
     sim = SimulationParams(
-        dt=0.01,
+        dt=0.05,
         duration=250.0,
         n_neurons=30,
         excitatory_ratio=0.8,

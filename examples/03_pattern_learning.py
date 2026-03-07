@@ -24,7 +24,7 @@ def main():
     print("=== Example 03: STDP-Based Pattern Learning ===\n")
 
     sim = SimulationParams(
-        dt=0.01,
+        dt=0.05,
         duration=250.0,
         n_neurons=30,
         excitatory_ratio=0.8,

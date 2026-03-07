@@ -23,7 +23,7 @@ def main():
     print("=== Example 02: Network Synchronization ===\n")
 
     params = SimulationParams(
-        dt=0.01,
+        dt=0.05,
         duration=200.0,
         n_neurons=20,
         connection_prob=0.3,

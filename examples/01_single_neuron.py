@@ -25,7 +25,7 @@ def main():
     params = NeuronParams()
     neuron = HodgkinHuxleyNeuron(0, True, params)
 
-    dt = 0.01          # ms
+    dt = 0.05          # ms
     duration = 50.0     # ms
     n_steps = int(duration / dt)
 

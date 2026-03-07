@@ -28,7 +28,7 @@ def main():
     print("=== Example 06: Layered Cortical Network ===\n")
 
     sim = SimulationParams(
-        dt=0.01,
+        dt=0.05,
         duration=100.0,
         n_neurons=128,
         n_input_neurons=64,
