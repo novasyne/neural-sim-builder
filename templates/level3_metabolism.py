@@ -65,7 +65,7 @@ class SynapseParams:
     is_inhibitory: bool = False
 
     # STDP parameters
-    stdp_ltp_rate: float = 0.05   # Learning rate for potentiation
+    stdp_ltp_rate: float = 0.15  # Learning rate for potentiation (Bi & Poo 1998)
     stdp_ltd_rate: float = 0.06   # Learning rate for depression
 
     # STP parameters
@@ -78,7 +78,7 @@ class SynapseParams:
 @dataclass
 class SimulationParams:
     """Global simulation parameters."""
-    dt: float = 0.01              # Time step (ms)
+    dt: float = 0.05              # Time step (ms)
     duration: float = 250.0       # Simulation time per pattern (ms)
     n_neurons: int = 50           # Number of neurons
     excitatory_ratio: float = 0.8
@@ -595,7 +595,7 @@ if __name__ == "__main__":
 
     # Configure simulation
     sim = SimulationParams(
-        dt=0.01,
+        dt=0.05,
         duration=250.0,
         n_neurons=50,
         excitatory_ratio=0.8,

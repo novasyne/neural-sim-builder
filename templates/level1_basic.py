@@ -44,7 +44,7 @@ class SynapseParams:
 @dataclass
 class SimulationParams:
     """Global simulation parameters."""
-    dt: float = 0.01              # Time step (ms)
+    dt: float = 0.05              # Time step (ms)
     duration: float = 100.0       # Total simulation time (ms)
     n_neurons: int = 10           # Number of neurons
     connection_prob: float = 0.3  # Random connectivity probability
@@ -308,7 +308,7 @@ def plot_results(network: NeuralNetwork):
 if __name__ == "__main__":
     # Configure simulation
     params = SimulationParams(
-        dt=0.01,
+        dt=0.05,
         duration=100.0,
         n_neurons=10,
         connection_prob=0.3,

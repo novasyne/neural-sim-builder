@@ -68,22 +68,22 @@ class MetabolicParams:
     blood_glucose: float = 5.0
     blood_ketones: float = 0.1
     complex_i_efficiency: float = 1.0
-    atp_consumption_rate: float = 1e-5
+    atp_consumption_rate: float = 1e-4
     initial_atp: float = 5.0
 
 
 @dataclass
 class SynapseParams:
     """Synapse parameters including plasticity settings."""
-    weight: float = 3.0
-    max_weight: float = 7.5
+    weight: float = 2.5
+    max_weight: float = 6.25
     min_weight: float = 0.1
     delay: float = 1.0
     pulse_duration: float = 2.0
     is_inhibitory: bool = False
 
     # STDP
-    stdp_ltp_rate: float = 0.05
+    stdp_ltp_rate: float = 0.15
     stdp_ltd_rate: float = 0.06
 
     # STP
@@ -96,14 +96,14 @@ class SynapseParams:
 @dataclass
 class SimulationParams:
     """Global simulation parameters."""
-    dt: float = 0.01
+    dt: float = 0.05
     duration: float = 250.0           # Time per pattern step (ms)
     n_neurons: int = 256              # Total neurons across all layers
     n_input_neurons: int = 128        # Neurons in the input layer
     excitatory_ratio: float = 0.8
     input_current: float = 25.0
     training_epochs: int = 5
-    synaptogenesis_rate: float = 0.0005  # Probability of forming a new synapse
+    synaptogenesis_rate: float = 0.0001  # Probability of forming a new synapse
 
 
 # ============================================================================
@@ -494,10 +494,10 @@ class LayeredNetwork:
 
     def _create_layered_connections(self):
         """Create distance-dependent connectivity respecting layer rules."""
-        LOCAL_PROB = 0.4
+        LOCAL_PROB = 0.6
         DISTANT_PROB = 0.1
 
-        exc_params = SynapseParams(weight=3.0, max_weight=7.5, is_inhibitory=False)
+        exc_params = SynapseParams(weight=2.5, max_weight=6.25, is_inhibitory=False)
         inh_params = SynapseParams(weight=5.0, max_weight=12.5, is_inhibitory=True)
 
         for pre in self.neurons:
@@ -765,14 +765,14 @@ if __name__ == "__main__":
 
     # Configure simulation
     sim = SimulationParams(
-        dt=0.01,
+        dt=0.05,
         duration=100.0,           # Time per temporal step (ms)
         n_neurons=256,
         n_input_neurons=128,
         excitatory_ratio=0.8,
         input_current=25.0,
         training_epochs=5,
-        synaptogenesis_rate=0.0005,
+        synaptogenesis_rate=0.0001,
     )
 
     # Configure metabolism
