@@ -8,8 +8,8 @@ Classes are ordered by complexity level:
   - StructuralSynapse: Distance-based delay with full plasticity (Level 4)
 
 STDP parameters from Song et al. (2000) and Kempter et al. (1999):
-  - LTP rate: ~0.01 per spike pair
-  - LTD rate: ~0.012 per spike pair (slightly > LTP for stability)
+  - LTP rate: 0.15 per spike pair
+  - LTD rate: 0.06 per spike pair (A+/A- ~2.5 for net potentiation)
   - Time window: 20 ms (Bi & Poo 1998)
   - LTD > LTP prevents runaway potentiation
 

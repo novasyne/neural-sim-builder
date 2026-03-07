@@ -65,10 +65,9 @@ class NeuronParams:
     E_K: float = -77.0        # Potassium reversal (mV)
     E_L: float = -54.387      # Leak reversal (mV)
 
-    # Absolute refractory period: ~1-2 ms in CNS neurons
-    # (Gerstner et al., Neuronal Dynamics; PhysiologyWeb).
-    # The HH gating variables produce intrinsic relative refractoriness.
-    refractory_period: float = 2.0  # ms
+    # Absolute refractory period: 5 ms (Berry & Meister 1998)
+    # Produces a physiological ceiling of ~200 Hz maximum firing rate.
+    refractory_period: float = 5.0  # ms (Berry & Meister 1998)
 
     # Input current safety clamp to prevent numerical instability
     max_input_current: float = 100.0  # pA
@@ -87,7 +86,7 @@ class MetabolicParams:
     blood_ketones: float = 0.1          # Systemic ketones (mM, fed state)
     complex_i_efficiency: float = 1.0   # Mitochondrial Complex I efficiency (0-1)
     atp_consumption_rate: float = 1e-4  # Rate constant for ATP usage by ion pumps
-    initial_atp: float = 3.0            # Starting ATP (mM) — 31P MRS measured
+    initial_atp: float = 5.0            # Starting ATP (mM) — 31P MRS measured
 
     # Michaelis-Menten glucose transport (BBB GLUT1 kinetics)
     # Km ≈ 7 mM for GLUT1 (Barros et al. 2005). Vmax calibrated so that
@@ -116,7 +115,7 @@ class SynapseParams:
 
     Weight ratio: inhibitory ~4x excitatory (Markram et al. 2015).
     Max weight = 2.5x initial (bounded plasticity).
-    STDP: ~0.01 LTP, ~0.012 LTD (Song et al. 2000; Kempter et al. 1999).
+    STDP: 0.15 LTP, 0.06 LTD (Bi & Poo 1998; A+/A- ~2.5 for net potentiation).
     """
     weight: float = 1.0           # Initial excitatory synaptic strength
     max_weight: float = 2.5       # Upper bound (2.5x initial)
@@ -127,8 +126,8 @@ class SynapseParams:
 
     # STDP parameters — Song et al. 2000; Kempter et al. 1999
     # LTD slightly > LTP prevents runaway potentiation
-    stdp_ltp_rate: float = 0.01   # LTP learning rate per spike pair
-    stdp_ltd_rate: float = 0.012  # LTD learning rate per spike pair
+    stdp_ltp_rate: float = 0.15  # LTP learning rate per spike pair
+    stdp_ltd_rate: float = 0.06  # LTD learning rate per spike pair
 
     # STP parameters — Markram et al. 1998
     tau_facilitation: float = 200.0   # Facilitation recovery (ms)
@@ -150,8 +149,8 @@ class AGCParams:
       effective_lambda = lambda_base * metabolic_gate(mean_ATP)
     """
     enabled: bool = True
-    target_rate_hz: float = 35.0      # Target firing rate (Hz)
-    lambda_base: float = 0.002        # Base gain adjustment rate
+    target_rate_hz: float = 8.0       # Target firing rate (Hz) — typical pyramidal in vivo
+    lambda_base: float = 0.02         # Base gain adjustment rate (10x original for convergence within 60s)
     interval_ms: float = 100.0        # AGC update interval (ms)
     gain_min: float = 5.0             # Minimum gain
     gain_max: float = 100.0           # Maximum gain
@@ -165,7 +164,7 @@ class AGCParams:
 @dataclass
 class SimulationParams:
     """Global simulation parameters."""
-    dt: float = 0.01              # Time step (ms)
+    dt: float = 0.05              # Time step (ms) — stable for HH with forward Euler
     duration: float = 250.0       # Simulation time per pattern (ms)
     n_neurons: int = 50           # Number of neurons
     excitatory_ratio: float = 0.8 # Fraction of excitatory neurons
