@@ -33,15 +33,15 @@ I help you build neural simulators at four sophistication levels:
 ### Level 1: Basic Neural Circuit ⚡
 **Foundation**: Hodgkin-Huxley neurons with realistic biophysics
 - Action potential generation with Na⁺, K⁺, and leak channels
-- Absolute refractory period (2 ms, literature-validated)
+- Absolute refractory period (5 ms, Berry & Meister 1998)
 - Synaptic connections with propagation delays
 - NaN guard and input current clamping for numerical stability
 - Spike raster plots and voltage traces
 
 ### Level 2: Adaptive Learning Networks 🧠
 **Adds**: Synaptic plasticity and pattern learning
-- **STDP** (Spike-Timing-Dependent Plasticity): LTP=0.01, LTD=0.012 per spike pair
-  (Song et al. 2000; LTD > LTP for stability per Kempter et al. 1999)
+- **STDP** (Spike-Timing-Dependent Plasticity): LTP=0.15, LTD=0.06 per spike pair
+  (Bi & Poo 1998; A+/A- ~2.5 for net potentiation)
 - **STP** (Short-Term Plasticity): Facilitation and depression
 - E:I weight ratio of 1:4 (Markram et al. 2015)
 
@@ -94,16 +94,16 @@ I'll help you adjust parameters, add features, debug, or upgrade to the next lev
 | Parameter | Value | Source |
 |-----------|-------|--------|
 | HH conductances | g_Na=120, g_K=36, g_L=0.3 mS/cm² | Hodgkin & Huxley 1952 |
-| Refractory period | 2.0 ms | CNS neurons (Gerstner et al.) |
-| Initial ATP | 3.0 mM | ³¹P MRS (Zhu et al. 2012) |
+| Refractory period | 5.0 ms | Berry & Meister 1998 |
+| Initial ATP | 5.0 mM | Magistretti & Allaman 2015 |
 | ATP consumption | 1e-4 (rate constant) | Calibrated to C++ reference |
 | GLUT1 Km | 7.0 mM | Barros et al. 2005 |
 | Glycogen buffer | 5.0 mM (glucose equiv.) | Dienel & Rothman 2019 |
-| STDP LTP rate | 0.01 per spike pair | Song et al. 2000 |
-| STDP LTD rate | 0.012 per spike pair | Kempter et al. 1999 |
+| STDP LTP rate | 0.15 per spike pair | Bi & Poo 1998; calibrated for HH network |
+| STDP LTD rate | 0.06 per spike pair | Bi & Poo 1998; A+/A- ~2.5 for net potentiation |
 | STDP window | 20 ms | Bi & Poo 1998 |
 | E:I weight ratio | 1:4 | Markram et al. 2015 |
-| AGC target rate | 35 Hz | Turrigiano & Nelson 2004 |
+| AGC target rate | 8 Hz | Typical pyramidal rate in vivo (Barth & Bhatt 2012; Turrigiano & Nelson 2004) |
 | Feedforward connectivity | 50% (peak) | Markram et al. 2015 |
 | Local connectivity | 30% (<150 µm) | Lefort et al. 2009 |
 
