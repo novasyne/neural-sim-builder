@@ -144,7 +144,7 @@ params = NeuronParams()
 neuron = HodgkinHuxleyNeuron(neuron_id=0, params=params)
 
 # Simulate with step current
-dt = 0.01
+dt = 0.05
 voltages = []
 times = []
 
